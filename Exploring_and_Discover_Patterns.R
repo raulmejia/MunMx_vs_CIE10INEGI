@@ -16,9 +16,12 @@ mymat <- as.matrix(mymat)
 
 dim(mymat)
 class(mymat)
+str(mymat)
 mymat[1:16,1:6]
 column_colors <- rep("green",dim(mymat)[2])
 
+
+mymat <- as.numeric(mymat)
 #-- Cleaning the data
 
 
@@ -35,3 +38,4 @@ plot_raw_Matrix_png(mymat, title_heatmap,file_name , column_colors)
 heatmap(mymat)
 str(mymat)
 
+# Pendig read the columns as numeric from the beggining
