@@ -1,41 +1,74 @@
 # Loading required libraries
+# setwd("/media/rmejia/ADATA-HD710/boba-bk-postsismo/rmejia/Documents/Otros_Proyectos_academicos/Municipios_CIE10_vs_MunMex/MunMx_vs_CIE10INEGI_Code/")
 source("libraries/plot_raw_Matrix_png.R")
 
 #-- Data changed by the user 
-mymat_path <- c("../Data/INEGI_Mortalidad_2010/Mor2010_UTF8_imputed_zeros.csv")
+mymat_path <- c("../Data/INEGI_Mortalidad_2010/Mor2010_UTF8_imputed_zeros.tsv")
 #mymat_path <- c("../Data/INEGI_Mortalidad_2010/Mortalidad_2010_completo.UTF8.tsv")
 title_heatmap<- c("Death cause in mexican municipalities")
 results_path <- c("/media/rmejia/ADATA-HD710/boba-bk-postsismo/rmejia/Documents/Otros_Proyectos_academicos/Municipios_CIE10_vs_MunMex/Results/")
-file_name <- paste0( results_path,"Heatmap_and_Dendro_absolute_deaths_vs_Municipalities_including_States.png"  )
+file_name_to_heatmap <- paste0( results_path,"Heatmap_and_Dendro_absolute_deaths_vs_Municipalities_including_States.png"  )
 # don't forget change the column_colors
 
 #-- Loading data
-mymat <- read.csv(file=mymat_path)
-mymat <- as.matrix(mymat)
-#mymat <- read.table(file=mymat_path, quote="", header=TRUE, sep="\t", stringsAsFactors=FALSE )
-
-dim(mymat)
+mymat <-read.table(mymat_path, header=TRUE, quote = "", sep = "\t",
+                  row.names = 1, stringsAsFactors= FALSE)
 class(mymat)
 str(mymat)
+dim(mymat)
+mymat[,"Santa.María.de.la.Paz"]
+mymat <- as.matrix(mymat)
+#mymat<- as.numeric(mymat)
+#mymat <- read.table(file=mymat_path, quote="", header=TRUE, sep="\t", stringsAsFactors=FALSE )
+
 mymat[1:16,1:6]
-column_colors <- rep("green",dim(mymat)[2])
 
 
-mymat <- as.numeric(mymat)
 #-- Cleaning the data
+mymat <- mymat[,-dim(mymat)[2]) # erasing the last row due to high number of NA's "Santa.María.de.la.Paz"
+mymat <- mymat[-c(1,2),-1]
+mymat <- log2(mymat+1)
 
+# ----
+states_positions <- c(1,
+  1+11+1,
+  1+11+1+5+1,
+  1+11+1+5+1+5+1,
+  1+11+1+5+1+5+1+11+1,
+  1+11+1+5+1+5+1+11+1+38+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1, 
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1+18+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1+18+1+9+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1+18+1+9+1+58+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1+18+1+9+1+58+1+18+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1+18+1+9+1+58+1+18+1+72+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1+18+1+9+1+58+1+18+1+72+1+17+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1+18+1+9+1+58+1+18+1+72+1+17+1+43+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1+18+1+9+1+58+1+18+1+72+1+17+1+43+1+60+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1+18+1+9+1+58+1+18+1+72+1+17+1+43+1+60+1+212+1,
+  1+11+1+5+1+5+1+11+1+38+1+10+1+118+1+67+1+16+1+39+1+46+1+81+1+84+1+125+1+125+1+113+1+33+1+20+1+50+1+556+217+1+18+1+9+1+58+1+18+1+72+1+17+1+43+1+60+1+212+1+106+1
+  )
+colnames(mymat)[states_positions]
 
+column_colors <- rep("green",dim(mymat)[2])
 #-- Invoking the function
-
-mymat <- as.numeric(mymat)
-is.na(mymat)<-0
-str(mymat)
-head(mymat)
-mymat[is.na(mymat)]
-
-plot_raw_Matrix_png(mymat, title_heatmap,file_name , column_colors)
-
-heatmap(mymat)
-str(mymat)
+date()
+plot_raw_Matrix_png(mymat, title_heatmap,file_name_to_heatmap , column_colors)
+date()
 
 # Pendig read the columns as numeric from the beggining

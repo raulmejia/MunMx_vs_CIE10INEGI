@@ -16,6 +16,14 @@ sed -i "s/,,/,0,/g" $output_file_zeros
 file_zeros_tsv="../Data/INEGI_Mortalidad_2010/Mor2010_UTF8_imputed_zeros.tsv"
 Rscript libraries/csv2tsv.R $output_file_zeros $file_zeros_tsv
 
+sed -i "s/,//g" $file_zeros_tsv
+sed -i "s/NA/0/g" $file_zeros_tsv
+
+
+Detailed_causes_CIE10="../Data/INEGI_Mortalidad_2010/Mor2010_UTF8_imputed_zeros_Detailed_causes_CIE10.tsv"
+cp $file_zeros_tsv $Detailed_causes_CIE10
+sed -i "/-/d" $Detailed_causes_CIE10
+
 #out_tsv="../Data/INEGI_Mortalidad_2010/Mortalidad_2010_completo.UTF8.tsv"
 #sed 's/, / /g'  < $output_file_zeros > $out_tsv
 #sed -i "s/,/\t/g" $out_tsv
